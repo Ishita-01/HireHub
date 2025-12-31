@@ -1,4 +1,4 @@
-from app.scraper.base import ScrapedJob
+from app.scraper.base import ScrappedJob
 
 INCLUDE_KEYWORDS = [
     "software engineer",
@@ -9,6 +9,9 @@ INCLUDE_KEYWORDS = [
     "ml engineer",
     "ai engineer",
     "applied scientist",
+    "summer intern",
+    "software development engineer",
+    
 ]
 
 EXCLUDE_KEYWORDS = [
@@ -24,7 +27,7 @@ NEWGRAD_KEYWORDS = ["new grad", "university graduate", "entry level", "grad soft
 
 PREFERRED_LOCATIONS = ["india", "bangalore", "bengaluru", "hyderabad", "gurgaon","Pune","Mumbai","remote"]
 
-def is_relevant(job: ScrapedJob) -> bool:
+def is_relevant(job: ScrappedJob) -> bool:
     text = f"{job.title} {job.employment_type}".lower()
 
     include = any(k in text for k in INCLUDE_KEYWORDS)

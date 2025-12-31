@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from .base import BaseScraper, ScrapedJob
+from .base import BaseScraper, ScrappedJob
 
 class DummyScraper(BaseScraper):
     """Fake scraper just to test the pipeline."""
@@ -7,16 +7,17 @@ class DummyScraper(BaseScraper):
     def fetch_jobs(self):
         now = datetime.utcnow()
         return [
-            ScrapedJob(
+            ScrappedJob(
                 title="Summer Intern (Evergreen)",
                 company="Visa",
                 location="Bangalore, India",
                 employment_type="Internship",
                 apply_link="https://smrtr.io/sT_xq",
                 posted_date=now - timedelta(days=1),
+                
                 source="Visa",
             ),
-            ScrapedJob(
+            ScrappedJob(
                 title="Software Engineering Intern",
                 company="Microsoft",
                 location="Bangalore, India",

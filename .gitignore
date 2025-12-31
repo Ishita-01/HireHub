@@ -4,3 +4,22 @@ __pycache__/
 *.pyc
 
 
+
+#database files
+*.db
+instance/   
+*.sqlite3
+*.sqlite
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+

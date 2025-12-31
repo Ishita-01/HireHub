@@ -5,25 +5,27 @@ from typing import Any, Dict, List, Optional
 class ScrappedJob():
     def __init__(
         self,
-        job_title: str,
+        title: str,
         company: str,
         employment_type: str,
         location: str,
         apply_link: str,
         posted_date: Optional[datetime] = None,
         deadline: Optional[datetime] = None,
+        source: Optional[str] = None,
     ):
-        self.job_title = job_title
+        self.title = title
         self.company = company
         self.employment_type = employment_type
         self.location = location
         self.apply_link = apply_link
         self.posted_date = posted_date
         self.deadline = deadline
+        self.source = source
 
 class BaseScraper(ABC):
     @abstractmethod
-    def scrape_jobs(self) -> List[ScrappedJob]:
+    def fetch_jobs(self) -> List[ScrappedJob]:
         """Scrape job listings from a source.
 
         Returns:

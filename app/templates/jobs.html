@@ -1,12 +1,14 @@
 {% extends "layout/base.html" %}
 {% block content %}
-<h1 class="mb-4">Scraped Jobs</h1>
+<h1 class="mb-4">Available Jobs</h1>
 <table class="table table-striped bg-white shadow-sm">
   <thead>
     <tr>
       <th>Company</th>
       <th>Title</th>
       <th>Location</th>
+      <th>Employment Type</th>
+      <th>Deadline</th>
       <th>Source</th>
       <th>Action</th>
     </tr>
@@ -17,6 +19,13 @@
       <td>{{ job.company }}</td>
       <td>{{ job.title }}</td>
       <td>{{ job.location }}</td>
+      <td>{{ job.employment_type }}</td>
+        <td>
+            {% if job.deadline %}
+            {{ job.deadline.strftime("%Y-%m-%d") }}
+            {% else %}
+            N/A
+            {% endif %}
       <td>{{ job.source }}</td>
       <td>
         <a href="{{ job.apply_link }}" target="_blank" class="btn btn-sm btn-outline-primary">Apply</a>
