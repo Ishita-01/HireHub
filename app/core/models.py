@@ -22,6 +22,8 @@ class Job(Base):
     first_seen: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow,nullable=False)
     last_seen: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow,nullable=False)
 
+    applications: Mapped[List["Application"]] = relationship("Application", back_populates="job")
+
 class Application(Base):
     __tablename__ = "applications"
 
@@ -38,7 +40,8 @@ class Application(Base):
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     priority: Mapped[Optional[int]] = mapped_column(Integer, default=3,nullable=False)
 
-    job : Mapped[List["Job"]] = relationship("Job", back_populates="applications")  
+    job : Mapped["Job"] = relationship("Job", back_populates="applications")  
+    events: Mapped[List["ApplicationEvent"]] = relationship("ApplicationEvent", back_populates="application")
 
 class ApplicationEvent(Base):
     __tablename__ = "application_events"

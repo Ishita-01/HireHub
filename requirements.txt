@@ -5,3 +5,4 @@ pydantic
 Google-api-python-client
 google-auth
 google-auth-oauthlib
+jinja2
