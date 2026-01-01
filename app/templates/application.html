@@ -12,7 +12,8 @@
                 <th>Company</th>
                 <th>Role</th>
                 <th>Status</th>
-                <th>Tracked On</th>
+                <th>Updation Date</th>
+                <th>Notes</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -22,21 +23,33 @@
                 <td><strong>{{ app.company }}</strong></td>
                 <td>{{ app.role_title }}</td>
                 <td>
-                    <span class="badge 
-                        {% if app.status == 'Applied' %}bg-success
-                        {% elif app.status == 'Interviewing' %}bg-warning text-dark
-                        {% else %}bg-secondary{% endif %}">
-                        {{ app.status }}
-                    </span>
+                    <form action="/update-status" method="post">
+                        <input type="hidden" name="app_id" value="{{ app.id }}">
+                        <select name="new_status" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="planned" {% if app.status == 'planned' %}selected{% endif %}>planned</option>
+                            <option value="applied" {% if app.status == 'applied' %}selected{% endif %}>applied</option>
+                            <option value="oa" {% if app.status == 'oa' %}selected{% endif %}>oa</option>
+                            <option value="interview" {% if app.status == 'interview' %}selected{% endif %}>interview</option>
+                            <option value="offer" {% if app.status == 'offer' %}selected{% endif %}>offer</option>
+                            <option value="rejected" {% if app.status == 'rejected' %}selected{% endif %}>rejected</option>
+                            <option value="ghosted" {% if app.status == 'ghosted' %}selected{% endif %}>ghosted</option>
+                        </select>
+                    </form>
                 </td>
-                <td>{{ app.applied_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ app.applied_date.strftime('%Y-%m-%d') if app.applied_date else 'N/A' }}</td>
+                <td>
+                    <form action="/update-notes" method="post" class="input-group input-group-sm">
+                        <input type="hidden" name="app_id" value="{{ app.id }}">
+                        <input type="text" name="notes" class="form-control" value="{{ app.notes or '' }}" placeholder="Add notes...">
+                        <button type="submit" class="btn btn-outline-secondary">Save</button>
+                    </form>
+                </td>
                 <td>
                     <div class="btn-group">
-                        <a href="{{ app.apply_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Open Link</a>
-                        <form action="/update-status" method="post" style="display:inline;">
+                        <a href="{{ app.apply_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Link</a>
+                        <form action="/delete-application" method="post" onsubmit="return confirm('Delete this application?');">
                             <input type="hidden" name="app_id" value="{{ app.id }}">
-                            <input type="hidden" name="new_status" value="Applied">
-                            <button type="submit" class="btn btn-sm btn-success ms-1">Mark Applied</button>
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                         </form>
                     </div>
                 </td>

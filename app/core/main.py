@@ -1,9 +1,10 @@
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta
 from fastapi import FastAPI, Form,Request,Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
-from .database import Base, engine
+from .database import Base, engine, SessionLocal
 from .deps import get_db
 from .models import Job,Application
 from app.services.ingest import ingest_dummy_jobs
@@ -14,7 +15,24 @@ from typing import Annotated
 async def lifespan(app: FastAPI):
     
     Base.metadata.create_all(bind=engine)
-    yield  
+    db = SessionLocal()
+    try:
+        now = datetime.utcnow()
+        db.query(Job).filter(Job.deadline < now).delete()
+        expiry_limit = now - timedelta(days=15)
+        
+        db.query(Job).filter(
+            Job.deadline == None,           # Only jobs with no deadline
+            Job.first_seen < expiry_limit   # Older than 15 days
+        ).delete()
+        
+        db.commit()
+    except Exception as e:
+        print(f"Cleanup error: {e}")
+    finally:
+        db.close()
+        
+    yield
     pass
 
 app = FastAPI(lifespan=lifespan)
@@ -62,7 +80,7 @@ async def view_applications(request: Request, db: Session = Depends(get_db)):
     application = db.query(Application).order_by(Application.applied_date.desc()).all()
     return templates.TemplateResponse(
         "application.html", 
-        {"request": request, "application": application}
+        {"request": request, "applications": application}
     )
 
 @app.post("/update-status")
@@ -80,3 +98,86 @@ async def update_app_status(
         
     return RedirectResponse(url="/applications", status_code=303)
 
+@app.post("/delete-application")
+async def delete_application(
+    app_id: Annotated[int, Form()], 
+    db: Session = Depends(get_db)
+):
+    application = db.query(Application).filter(Application.id == app_id).first()
+    
+    if application:
+        db.delete(application)
+        db.commit()
+        
+    return RedirectResponse(url="/applications", status_code=303)
+
+@app.post("/update-notes")
+async def update_notes(
+        app_id: Annotated[int, Form()],
+        notes: Annotated[str, Form()],  
+        db: Session = Depends(get_db)
+):
+    application = db.query(Application).filter(Application.id == app_id).first()
+    
+    if application:
+        application.notes = notes
+        db.commit() 
+        
+    return RedirectResponse(url="/applications", status_code=303)
+
+
+@app.post("/add-jobs-manually")
+async def add_job_manually(
+    company: Annotated[str, Form()],
+    title: Annotated[str, Form()],
+    apply_link: Annotated[str, Form()],
+    location: Annotated[str, Form()] ,
+    employment_type: Annotated[str, Form()],
+    deadline: datetime = Form(None),
+    db: Session = Depends(get_db)
+):
+    new_job = Job(
+        company=company,
+        title=title,
+        apply_link=apply_link,
+        location=location,
+        employment_type=employment_type,
+        deadline=deadline,
+        source="Manual Entry",
+        posted_date=datetime.utcnow()
+    )
+    
+    db.add(new_job)
+    db.commit()
+    
+    return RedirectResponse(url="/jobs", status_code=303)
+
+
+@app.post("/edit-job")
+async def edit_job(
+    job_id: Annotated[int, Form()],
+    company: Annotated[str, Form()],
+    title: Annotated[str, Form()],
+    location: Annotated[str, Form()],
+    employment_type: Annotated[str, Form()],
+    deadline: Annotated[str, Form()] = None,
+    apply_link: Annotated[str, Form()] = None,
+    db: Session = Depends(get_db)
+):
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if job:
+        job.company = company
+        job.title = title
+        job.location = location
+        job.employment_type = employment_type
+        job.apply_link = apply_link
+        
+
+        if deadline:
+            try:
+                job.deadline = datetime.strptime(deadline, "%Y-%m-%d")
+            except ValueError:
+                pass
+                
+        db.commit()
+    return RedirectResponse(url="/jobs", status_code=303)

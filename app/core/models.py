@@ -11,7 +11,7 @@ class Job(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     company: Mapped[str] = mapped_column(String(255), nullable=False)
-    location: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    location: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, default="NA")
     employment_type: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     apply_link: Mapped[Optional[str]] = mapped_column(String(1000), nullable=False)
 

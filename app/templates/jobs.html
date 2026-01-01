@@ -1,6 +1,35 @@
 {% extends "layout/base.html" %}
 {% block content %}
 <h1 class="mb-4">Available Jobs</h1>
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Add Job Manually</h5>
+        <form action="/add-jobs-manually" method="post" class="row g-3">
+            <div class="col-md-3">
+                <input type="text" name="company" class="form-control" placeholder="Company" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="title" class="form-control" placeholder="Title" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="location" class="form-control" placeholder="Location">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="employment_type" class="form-control" placeholder="Employment Type" required>
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="deadline" class="form-control" placeholder="Deadline" >
+            </div>
+            <div class="col-md-3">
+                <input type="url" name="apply_link" class="form-control" placeholder="Apply URL" required>
+            </div>
+  
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-10">Add</button>
+            </div>
+        </form>
+    </div>
+</div>
 <table class="table table-striped bg-white shadow-sm">
   <thead>
     <tr>
@@ -28,13 +57,65 @@
             {% endif %}
       <td>{{ job.source }}</td>
       <td>
+    <td>
     <div class="d-flex gap-2">
         <a href="{{ job.apply_link }}" target="_blank" class="btn btn-sm btn-outline-primary">Apply</a>
         
+        <button type="button" class="btn btn-sm btn-outline-secondary" 
+                data-bs-toggle="modal" 
+                data-bs-target="#editModal{{ job.id }}">
+            Edit
+        </button>
+
         <form action="/track-job" method="post">
             <input type="hidden" name="job_id" value="{{ job.id }}">
             <button type="submit" class="btn btn-sm btn-success">Track</button>
         </form>
+    </div>
+
+    <div class="modal fade" id="editModal{{ job.id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="/edit-job" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Job Listing</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="job_id" value="{{ job.id }}">
+                        <div class="mb-3">
+                            <label class="form-label">Company</label>
+                            <input type="text" name="company" class="form-control" value="{{ job.company }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" name="title" class="form-control" value="{{ job.title }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" name="location" class="form-control" value="{{ job.location }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Apply Link</label>
+                            <input type="url" name="apply_link" class="form-control" value="{{ job.apply_link }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Employment Type</label>
+                            <input type="text" name="employment_type" class="form-control" value="{{ job.employment_type }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Deadline</label>
+                            <input type="date" name="deadline" class="form-control" value="{{ job.deadline }}">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </td>
     </tr>
