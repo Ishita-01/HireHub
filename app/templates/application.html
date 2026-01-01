@@ -1,0 +1,48 @@
+{% extends "layout/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>My Job Applications</h1>
+    <span class="badge bg-primary fs-5">{{ applications|length }} Total</span>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle bg-white shadow-sm rounded">
+        <thead class="table-dark">
+            <tr>
+                <th>Company</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Tracked On</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td><strong>{{ app.company }}</strong></td>
+                <td>{{ app.role_title }}</td>
+                <td>
+                    <span class="badge 
+                        {% if app.status == 'Applied' %}bg-success
+                        {% elif app.status == 'Interviewing' %}bg-warning text-dark
+                        {% else %}bg-secondary{% endif %}">
+                        {{ app.status }}
+                    </span>
+                </td>
+                <td>{{ app.applied_date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <div class="btn-group">
+                        <a href="{{ app.apply_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Open Link</a>
+                        <form action="/update-status" method="post" style="display:inline;">
+                            <input type="hidden" name="app_id" value="{{ app.id }}">
+                            <input type="hidden" name="new_status" value="Applied">
+                            <button type="submit" class="btn btn-sm btn-success ms-1">Mark Applied</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

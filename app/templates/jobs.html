@@ -28,9 +28,15 @@
             {% endif %}
       <td>{{ job.source }}</td>
       <td>
+    <div class="d-flex gap-2">
         <a href="{{ job.apply_link }}" target="_blank" class="btn btn-sm btn-outline-primary">Apply</a>
-        <button class="btn btn-sm btn-success">Track</button>
-      </td>
+        
+        <form action="/track-job" method="post">
+            <input type="hidden" name="job_id" value="{{ job.id }}">
+            <button type="submit" class="btn btn-sm btn-success">Track</button>
+        </form>
+    </div>
+</td>
     </tr>
     {% endfor %}
   </tbody>

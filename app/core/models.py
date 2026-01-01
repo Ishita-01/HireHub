@@ -53,7 +53,7 @@ class ApplicationEvent(Base):
     event_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
-    application : Mapped[List["Application"]] = relationship("Application", back_populates="events")
+    application : Mapped["Application"] = relationship("Application", back_populates="events")
 
 
 class Connection(Base):
