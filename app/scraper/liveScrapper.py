@@ -7,7 +7,7 @@ class JobSpyScraper(BaseScraper):
         jobs = scrape_jobs(
             site_name=["indeed","linkedin","glassdoor","naukri"],
             search_term="software",
-            location="Bangalore,Karnataka",
+            location="india",
             country_at_box='india',
             results_wanted=30,
             hours_old=72,

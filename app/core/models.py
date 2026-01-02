@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Optional,List
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime,Text
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime,Text,Enum
 from sqlalchemy.orm import Mapped, mapped_column,relationship
+from enum import Enum as PyEnum
 from app.core.database import Base
 
 
@@ -56,22 +57,17 @@ class ApplicationEvent(Base):
     application : Mapped["Application"] = relationship("Application", back_populates="events")
 
 
-class Connection(Base):
-    __tablename__ = "connections"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(255), index=True)
-    Current_company: Mapped[Optional[str]] = mapped_column(String(255), index=True)
-    email_message_id: Mapped[Optional[str]] = mapped_column(String(255), unique=True)
-    accepted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+class UserRole(PyEnum):
+    ADMIN = "admin"
+    USER = "user"
 
 
-class ReferralOpportunity(Base):
-    __tablename__ = "referral_opportunities"
+class User(Base):
+    __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    job_id: Mapped[int] = mapped_column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), index=True)
-    connection_id: Mapped[int] = mapped_column(Integer, ForeignKey("connections.id", ondelete="CASCADE"), index=True)
-    
-    status: Mapped[str] = mapped_column(String(50), default="new") # e.g., contacted, ignored, done
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String(150), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
+    role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.USER, nullable=False)
+    resume : Mapped[str] = mapped_column(String(1000), nullable=False)

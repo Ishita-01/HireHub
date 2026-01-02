@@ -1,12 +1,14 @@
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
+from http.client import HTTPException
 from fastapi import FastAPI, Form,Request,Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from .database import Base, engine, SessionLocal
-from .deps import get_db
-from .models import Job,Application
+from .deps import get_db,get_current_user,roleRequired
+from .schemas import userCreate
+from .models import Job,Application,User,UserRole
 from app.services.ingest import ingest_jobs
 from typing import Annotated
 
@@ -38,19 +40,105 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 templates = Jinja2Templates(directory="app/templates")
 
+def createUser(db: Session,userData:userCreate):
+    if userData.username == "ishita@admin" :
+        role = "admin"
+    else:
+        role = "user"
+    
+    newUser = User(
+        username=userData.username,
+        email=userData.email,
+        password=userData.password,
+        role=role,
+        resume = userData.resume
+    )
+    db.add(newUser)
+    db.commit()
+    return newUser
+
+
+
+# app/core/main.py
+
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    """Serve the landing page."""
+    return templates.TemplateResponse("home.html", {"request": request,"user": None})
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    """Serve the login page."""
+    return templates.TemplateResponse("login.html", {"request": request,"user": None})
+
+@app.get("/register", response_class=HTMLResponse)
+async def register_page(request: Request):
+    """Route for new user registration."""
+    
+    return templates.TemplateResponse("register.html", {"request": request,"user": None})
+@app.post("/register")
+async def handle_registration(
+    username: Annotated[str, Form()],
+    email: Annotated[str, Form()],
+    password: Annotated[str, Form()],
+    resume: Annotated[str, Form()] = None,
+    db: Session = Depends(get_db)
+):
+    # Determine role based on username
+    role = "admin" if username == "ishita@admin" else "user"
+    
+    # In a real app, you would hash the password here (e.g., using passlib)
+    hashed_pwd = password # Replace with pwd_context.hash(password)
+    
+    new_user = User(
+        username=username,
+        email=email,
+        hashed_password=hashed_pwd,
+        role=role,
+        resume=resume
+    )
+    
+    try:
+        db.add(new_user)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        # You should handle duplicate username/email errors here
+        return RedirectResponse(url="/register?error=exists", status_code=303)
+        
+    return RedirectResponse(url="/login?success=registered", status_code=303)
+
+@app.get("/forgot-password", response_class=HTMLResponse)
+async def forgot_password_page(request: Request):
+    """Route for password recovery."""
+    # Create forgot_password.html with an email input
+    return templates.TemplateResponse("forgot_password.html", {"request": request})
+
+
+
+
 @app.get("/scrape-test")
-async def trigger_sync(db: Session = Depends(get_db)):
+async def trigger_sync(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "ishita@admin" or current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to perform this action.")
     
     count = ingest_jobs(db) 
     return RedirectResponse(url="/jobs", status_code=303)
 
 @app.get("/jobs", response_class=HTMLResponse)
-async def list_jobs(request: Request, db: Session = Depends(get_db)):
+async def list_jobs(
+    request: Request, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+    ):
     jobs = db.query(Job).order_by(Job.posted_date.desc()).all()
     
     return templates.TemplateResponse(
         "jobs.html", 
-        {"request": request, "jobs": jobs}
+        {"request": request, "jobs": jobs,"user":current_user}
     )
 
 @app.post("/track-job")

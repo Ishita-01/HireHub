@@ -42,18 +42,16 @@ class ApplicationRead(ApplicationBase, SchemaBase):
     applied_date: datetime
 
 
-class ConnectionCreate(BaseModel):
-    name: str
-    Current_company: Optional[str] = None
-    email_message_id: Optional[str] = None
+class userCreate(SchemaBase):
+    email: str
+    role: str
+    resume: str
 
-class ConnectionRead(ConnectionCreate, SchemaBase):
+class UserRead(SchemaBase):
     id: int
-    accepted_at: datetime
+    email: str
+    role: str
+    resume: str
 
-class ReferralOpportunityRead(SchemaBase):
-    id: int
-    job_id: int
-    connection_id: int
-    status: str
-    created_at: datetime
+    class config:
+        from_attributes = True

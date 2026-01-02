@@ -11,9 +11,19 @@
       <div class="container">
         <a class="navbar-brand" href="/">HireHub</a>
         <div class="navbar-nav">
-          <a class="nav-link text-warning" href="/scrape-test">🔄 Sync Jobs</a>
+          {% if user and user.username == 'ishita@admin' %}
+            <a class="nav-link text-warning" href="/scrape-test">🔄 Sync Jobs</a>
+          {% endif %}
+                
           <a class="nav-link" href="/jobs">View Jobs</a>
           <a class="nav-link" href="/applications">Applications</a>
+                
+          {% if user %}
+            <span class="nav-link text-light">Welcome, {{ user.username }}</span>
+            <a class="nav-link" href="/logout">Logout</a>
+          {% else %}
+            <a class="nav-link" href="/login">Sign In</a>
+          {% endif %}
         </div>
       </div>
     </nav>

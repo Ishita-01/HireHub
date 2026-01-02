@@ -9,3 +9,6 @@ jinja2
 python-multipart
 python-jobspy
 pandas
+passlib[bcrypt]
+python-jose[cryptography]
+

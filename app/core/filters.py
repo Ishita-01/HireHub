@@ -26,15 +26,11 @@ EXCLUDE_KEYWORDS = [
 INTERNSHIP_KEYWORDS = ["intern", "internship", "6 month", "6-month", "6 months","2-month","2 month","2 months","summer intern","summer internship"]
 NEWGRAD_KEYWORDS = ["new grad", "university graduate", "entry level", "grad software"]
 
-PREFERRED_LOCATIONS = ["india", "bangalore", "bengaluru", "hyderabad", "gurgaon","Pune","Mumbai","remote"]
+PREFERRED_LOCATIONS = ["india", "bangalore", "bengaluru", "hyderabad", "gurgaon","Pune","Mumbai","remote",""]
 
 def is_relevant(job: ScrappedJob) -> bool:
 
-    location = job.location
-    if pd.isna(location) or location is None:
-        loc_text = ""
-    else:
-        loc_text = str(location).lower()
+    
 
     text = f"{job.title} {job.employment_type}".lower()
 
@@ -51,8 +47,13 @@ def is_relevant(job: ScrappedJob) -> bool:
         # allow if not explicitly senior but still SWE-ish
         if "3+ years" in full_text or "5+ years" in full_text:
             return False
-
-    loc_text = (job.location or "").lower()
+        
+    location = job.location
+    if pd.isna(location) or location is None:
+        loc_text = ""
+    else:
+        loc_text = str(location).lower()
+    loc_text = (location or "").lower()
     if PREFERRED_LOCATIONS:
         if not any(loc in loc_text for loc in PREFERRED_LOCATIONS):
             if "remote" not in loc_text:

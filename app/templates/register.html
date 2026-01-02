@@ -1,0 +1,37 @@
+{% extends "layout/base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm mt-5">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Create New Account</h3>
+                <form action="/register" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" placeholder="Choose a unique username" required>
+                        <div class="form-text">Note: 'ishita@admin' is reserved for the administrator.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email address</label>
+                        <input type="email" name="email" class="form-control" placeholder="name@example.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Resume / Profile Summary</label>
+                        <textarea name="resume" class="form-control" rows="4" placeholder="Paste your resume text or professional summary here..."></textarea>
+                    </div>
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-success">Register</button>
+                    </div>
+                </form>
+                <div class="text-center small">
+                    <p class="mb-0">Already have an account? <a href="/login" class="text-decoration-none">Sign In</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
