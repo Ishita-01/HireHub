@@ -1,4 +1,5 @@
 from app.scraper.base import ScrappedJob
+import pandas as pd
 
 INCLUDE_KEYWORDS = [
     "software engineer",
@@ -28,6 +29,13 @@ NEWGRAD_KEYWORDS = ["new grad", "university graduate", "entry level", "grad soft
 PREFERRED_LOCATIONS = ["india", "bangalore", "bengaluru", "hyderabad", "gurgaon","Pune","Mumbai","remote"]
 
 def is_relevant(job: ScrappedJob) -> bool:
+
+    location = job.location
+    if pd.isna(location) or location is None:
+        loc_text = ""
+    else:
+        loc_text = str(location).lower()
+
     text = f"{job.title} {job.employment_type}".lower()
 
     include = any(k in text for k in INCLUDE_KEYWORDS)

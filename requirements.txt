@@ -6,3 +6,6 @@ Google-api-python-client
 google-auth
 google-auth-oauthlib
 jinja2
+python-multipart
+python-jobspy
+pandas

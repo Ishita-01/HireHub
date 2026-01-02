@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from .database import Base, engine, SessionLocal
 from .deps import get_db
 from .models import Job,Application
-from app.services.ingest import ingest_dummy_jobs
+from app.services.ingest import ingest_jobs
 from typing import Annotated
 
 
@@ -41,7 +41,7 @@ templates = Jinja2Templates(directory="app/templates")
 @app.get("/scrape-test")
 async def trigger_sync(db: Session = Depends(get_db)):
     
-    count = ingest_dummy_jobs(db) 
+    count = ingest_jobs(db) 
     return RedirectResponse(url="/jobs", status_code=303)
 
 @app.get("/jobs", response_class=HTMLResponse)
