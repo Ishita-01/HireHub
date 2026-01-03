@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from .database import Base, engine, SessionLocal
-from .deps import get_db,get_current_user,roleRequired
+from .deps import auth_required, get_db,get_current_user,roleRequired
 from .schemas import userCreate
 from .models import Job,Application,User,UserRole
 from app.services.ingest import ingest_jobs
@@ -70,11 +70,34 @@ async def home(request: Request):
 async def login_page(request: Request):
     """Serve the login page."""
     return templates.TemplateResponse("login.html", {"request": request,"user": None})
+@app.post("/login")
+async def handle_login(
+    request: Request,
+    username: Annotated[str, Form()],
+    #email: Annotated[str, Form()],
+    password: Annotated[str, Form()],
+    #resume: Annotated[str, Form()] = None,
+    db: Session = Depends(get_db)
+):
+    
+    user = db.query(User).filter(User.username == username).first()
+    if not user or user.hashed_password != password:
+        return (templates.TemplateResponse(
+            "login.html",
+              {"request": request,
+               "user": None,
+               "error":"Invalid credentials"
+            }))
+    
+    response = RedirectResponse(url="/jobs", status_code=303)
+    response.set_cookie(key="session_user", value=user.username)
+    
+    return response
 
 @app.get("/register", response_class=HTMLResponse)
 async def register_page(request: Request):
+
     """Route for new user registration."""
-    
     return templates.TemplateResponse("register.html", {"request": request,"user": None})
 @app.post("/register")
 async def handle_registration(
@@ -85,7 +108,7 @@ async def handle_registration(
     db: Session = Depends(get_db)
 ):
     # Determine role based on username
-    role = "admin" if username == "ishita@admin" else "user"
+    role = UserRole.ADMIN if username == "ishita@admin" else UserRole.USER
     
     # In a real app, you would hash the password here (e.g., using passlib)
     hashed_pwd = password # Replace with pwd_context.hash(password)
@@ -122,7 +145,7 @@ async def trigger_sync(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role != "ishita@admin" or current_user.role != "admin":
+    if current_user.username != "ishita@admin" or current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Not authorized to perform this action.")
     
     count = ingest_jobs(db) 
@@ -132,7 +155,7 @@ async def trigger_sync(
 async def list_jobs(
     request: Request, 
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(auth_required)
     ):
     jobs = db.query(Job).order_by(Job.posted_date.desc()).all()
     
@@ -164,11 +187,15 @@ async def track_job(job_id: Annotated[int, Form()], db: Session = Depends(get_db
 
 
 @app.get("/applications", response_class=HTMLResponse)
-async def view_applications(request: Request, db: Session = Depends(get_db)):
+async def view_applications(
+    request: Request, 
+    db: Session = Depends(get_db),
+    user = Depends(auth_required)
+):
     application = db.query(Application).order_by(Application.applied_date.desc()).all()
     return templates.TemplateResponse(
         "application.html", 
-        {"request": request, "applications": application}
+        {"request": request, "applications": application,"user":user}
     )
 
 @app.post("/update-status")
