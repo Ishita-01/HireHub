@@ -1,0 +1,61 @@
+{% extends "layout/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>My Job Applications</h1>
+    <span class="badge bg-primary fs-5">{{ applications|length }} Total</span>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle bg-white shadow-sm rounded">
+        <thead class="table-dark">
+            <tr>
+                <th>Company</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Updation Date</th>
+                <th>Notes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td><strong>{{ app.company }}</strong></td>
+                <td>{{ app.role_title }}</td>
+                <td>
+                    <form action="/update-status" method="post">
+                        <input type="hidden" name="app_id" value="{{ app.id }}">
+                        <select name="new_status" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="planned" {% if app.status == 'planned' %}selected{% endif %}>planned</option>
+                            <option value="applied" {% if app.status == 'applied' %}selected{% endif %}>applied</option>
+                            <option value="oa" {% if app.status == 'oa' %}selected{% endif %}>oa</option>
+                            <option value="interview" {% if app.status == 'interview' %}selected{% endif %}>interview</option>
+                            <option value="offer" {% if app.status == 'offer' %}selected{% endif %}>offer</option>
+                            <option value="rejected" {% if app.status == 'rejected' %}selected{% endif %}>rejected</option>
+                            <option value="ghosted" {% if app.status == 'ghosted' %}selected{% endif %}>ghosted</option>
+                        </select>
+                    </form>
+                </td>
+                <td>{{ app.applied_date.strftime('%Y-%m-%d') if app.applied_date else 'N/A' }}</td>
+                <td>
+                    <form action="/update-notes" method="post" class="input-group input-group-sm">
+                        <input type="hidden" name="app_id" value="{{ app.id }}">
+                        <input type="text" name="notes" class="form-control" value="{{ app.notes or '' }}" placeholder="Add notes...">
+                        <button type="submit" class="btn btn-outline-secondary">Save</button>
+                    </form>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a href="{{ app.apply_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Link</a>
+                        <form action="/delete-application" method="post" onsubmit="return confirm('Delete this application?');">
+                            <input type="hidden" name="app_id" value="{{ app.id }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
