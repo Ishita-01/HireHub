@@ -2,6 +2,7 @@ fastapi
 uvicorn
 SQLAlchemy
 pydantic
+python-dotenv
 Google-api-python-client
 google-auth
 google-auth-oauthlib
@@ -12,5 +13,8 @@ pandas
 passlib[bcrypt]
 python-jose[cryptography]
 python-docx
-
+langchain-google-genai
+langchain
+google-genai
+PyPDF2
 

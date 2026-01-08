@@ -21,14 +21,15 @@
 
             <a class="nav-link" href="/jobs">View Jobs</a>
 
-            {% if user.role.value != 'admin' %}
-              <a class="nav-link" href="/applications">Applications</a>
-            {% endif %}
             
+            <a class="nav-link" href="/applications">Applications</a>
+            <a class="nav-link" href="/analyze">Analyze Resume</a>
+            <a class="nav-link" href="/profile">Profile</a>
             <a class="nav-link" href="/logout">Logout</a>
           {% else %}
             <a class="nav-link" href="/login">Sign In</a>
           {% endif %}
+          
         </div>
       </div>
     </nav>

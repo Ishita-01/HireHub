@@ -1,0 +1,64 @@
+{% extends "layout/base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title mb-4">AI Resume Matcher</h3>
+                
+                <div class="alert alert-info small">
+                    <strong>Current Resume:</strong> {{ user.resume.split('/')[-1] if user.resume else 'None' }}
+                    {% if not user.resume %}
+                        <br><a href="/profile" class="alert-link">Please upload a resume in your profile first.</a>
+                    {% endif %}
+                </div>
+
+                <form action="/analyze-resume" method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Job Description</label>
+                        <textarea name="job_description" class="form-control" rows="8" 
+                                  placeholder="Paste the full job description here..." required>{{ jd if jd else '' }}</textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" {% if not user.resume %}disabled{% endif %}>
+                            Analyze Match Score
+                        </button>
+                    </div>
+                </form>
+
+                {% if analysis %}
+                <hr class="my-5">
+                <div class="results-section">
+                    <div class="text-center mb-4">
+                        <h4 class="text-muted">Analysis Result</h4>
+                        <div class="display-3 fw-bold text-success">{{ analysis.score }}%</div>
+                        <p class="text-muted">Match with Job Description</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-danger">Missing Skills/Keywords</h6>
+                            <div class="mb-3">
+                                {% for skill in analysis.missing_skills %}
+                                    <span class="badge bg-outline-danger border text-danger m-1">{{ skill }}</span>
+                                {% else %}
+                                    <span class="text-muted small">None identified.</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-primary">Recommendations</h6>
+                            <ul class="list-unstyled">
+                                {% for rec in analysis.recommendations %}
+                                    <li class="small mb-2 text-muted">📍 {{ rec }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

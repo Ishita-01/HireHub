@@ -2,17 +2,18 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from http.client import HTTPException
 import os
-from fastapi import FastAPI, Form,Request,Depends
+from fastapi import FastAPI, Form,Request,Depends, File, UploadFile
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from sqlalchemy.orm import Session
 from .database import Base, engine, SessionLocal
 from .deps import auth_required, get_db,get_current_user,roleRequired
 from .schemas import userCreate
 from .models import Job,Application,User,UserRole
 from app.services.ingest import ingest_jobs
+from app.services.analyzer import analyze_resume
 from typing import Annotated
-from fastapi import File, UploadFile
+
 
 
 @asynccontextmanager
@@ -58,6 +59,32 @@ def createUser(db: Session,userData:userCreate):
     db.add(newUser)
     db.commit()
     return newUser
+
+
+@app.get("/analyze", response_class=HTMLResponse)
+async def analyze_page(request: Request, user: User = Depends(auth_required)):
+    """Render the standalone analysis page."""
+    return templates.TemplateResponse("analyze.html", {"request": request, "user": user})
+
+@app.post("/analyze-resume")
+async def analyze_resume_req(
+    request: Request,
+    job_description: Annotated[str, Form()],
+    user: User = Depends(auth_required)
+):
+    """Handle the AI analysis and stay on the analysis page."""
+    if not user.resume or not os.path.exists(user.resume):
+        return RedirectResponse(url="/profile?error=no_resume", status_code=303)
+
+    # Call Gemini service with the full PDF path
+    analysis = analyze_resume(user.resume, job_description)
+
+    return templates.TemplateResponse("analyze.html", {
+        "request": request,
+        "user": user,
+        "analysis": analysis,
+        "jd": job_description
+    })
 
 
 
@@ -154,6 +181,45 @@ async def logout(request: Request):
     response = RedirectResponse(url="/", status_code=303)
     response.delete_cookie(key="session_user")
     return response
+
+@app.get("/profile", response_class=HTMLResponse)
+async def profile_page(request: Request, user: User = Depends(auth_required)):
+    return templates.TemplateResponse("profile.html", {"request": request, "user": user})
+
+
+@app.post("/update-resume")
+async def update_resume(
+    resume: UploadFile = File(None),
+    db: Session = Depends(get_db),
+    user: User = Depends(auth_required)
+):
+    if not resume or not resume.filename:
+        return RedirectResponse(url="/profile?error=no_file", status_code=303)
+    
+    resume_path = None
+    if resume and resume.filename:
+        os.makedirs("uploads/resumes", exist_ok=True)
+        resume_path = f"uploads/resumes/{user.username}_{resume.filename}"
+        with open(resume_path, "wb") as f:
+            f.write(await resume.read())
+    
+    user.resume = resume_path
+    db.commit()
+    
+    return RedirectResponse(url="/profile?success=updated", status_code=303)
+
+
+@app.get("/view-resume")
+async def view_resume(user: User = Depends(auth_required)):
+    """Serves the user's current resume PDF."""
+    if not user.resume or not os.path.exists(user.resume):
+        raise HTTPException(status_code=404, detail="Resume file not found.")
+    
+    return FileResponse(
+        path=user.resume, 
+        media_type='application/pdf',
+        filename=os.path.basename(user.resume)
+    )
 
 @app.get("/scrape-test")
 async def trigger_sync(
