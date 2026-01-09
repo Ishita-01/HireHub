@@ -1,13 +1,87 @@
 {% extends "layout/base.html" %}
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6 text-center">
-        <h1 class="display-4 mb-4">Welcome to HireHub</h1>
-        <p class="lead mb-4">Your central portal for managing job applications and tracking your career growth.</p>
-        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-            <a href="/login" class="btn btn-primary btn-lg px-4 gap-3">Sign In</a>
-            <a href="/register" class="btn btn-outline-secondary btn-lg px-4">Create Account</a>
+
+<div class="container mt-5">
+
+    <!-- Hero Section -->
+    <div class="row justify-content-center align-items-center mb-5">
+        <div class="col-lg-8 text-center">
+            <h1 class="display-4 fw-bold mb-3">
+                HireHub 🚀
+            </h1>
+            <p class="lead text-muted mb-4">
+                Your smart career companion — analyze resumes, track applications, and boost your job readiness with AI.
+            </p>
+
+            <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                <a href="/login" class="btn btn-primary btn-lg px-5">
+                    Sign In
+                </a>
+                <a href="/register" class="btn btn-outline-secondary btn-lg px-5">
+                    Create Account
+                </a>
+            </div>
         </div>
     </div>
+
+    <!-- Feature Cards -->
+    <div class="row g-4 text-center mb-5">
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="fs-1 mb-3">📄</div>
+                    <h5 class="fw-bold">AI Resume Matcher</h5>
+                    <p class="text-muted small">
+                        Upload your resume and instantly get a match score, missing skills, and ATS improvement tips.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="fs-1 mb-3">📊</div>
+                    <h5 class="fw-bold">Application Tracker</h5>
+                    <p class="text-muted small">
+                        Organize job applications, monitor statuses, and never miss an opportunity again.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="fs-1 mb-3">🎯</div>
+                    <h5 class="fw-bold">Career Growth</h5>
+                    <p class="text-muted small">
+                        Identify skill gaps, improve resumes, and prepare smarter for internships and placements.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom CTA -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card bg-primary text-white shadow border-0">
+                <div class="card-body p-4 p-md-5 text-center">
+                    <h3 class="fw-bold mb-3">Start building your job-ready profile today</h3>
+                    <p class="mb-4 opacity-75">
+                        Join HireHub and take control of your placement and internship journey.
+                    </p>
+                    <a href="/register" class="btn btn-light btn-lg px-5 fw-semibold">
+                        Get Started Free
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+
 {% endblock %}
