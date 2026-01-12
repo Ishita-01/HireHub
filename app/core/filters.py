@@ -12,6 +12,8 @@ INCLUDE_KEYWORDS = [
     "applied scientist",
     "summer intern",
     "software development engineer",
+    "2026",
+    "2027"
     
 ]
 
@@ -23,7 +25,7 @@ EXCLUDE_KEYWORDS = [
     "lead",
 ]
 
-INTERNSHIP_KEYWORDS = ["intern", "internship", "6 month", "6-month", "6 months","2-month","2 month","2 months","summer intern","summer internship"]
+INTERNSHIP_KEYWORDS = ["intern", "internship", "6 month", "6-month", "6 months","2-month","2 month","2 months","summer intern","summer internship","pre-final","2027 graduate"]
 NEWGRAD_KEYWORDS = ["new grad", "university graduate", "entry level", "grad software"]
 
 PREFERRED_LOCATIONS = ["india", "bangalore", "bengaluru", "hyderabad", "gurgaon","Pune","Mumbai","remote",""]
@@ -34,10 +36,19 @@ def is_relevant(job: ScrappedJob) -> bool:
 
     text = f"{job.title} {job.employment_type}".lower()
 
+    batch_target = any(year in text for year in ["2026","2027","pre-final"])
+
     include = any(k in text for k in INCLUDE_KEYWORDS)
     exclude = any(k in text for k in EXCLUDE_KEYWORDS)
+
     if not include or exclude:
         return False
+
+
+    has_intern = any(k in text for k in INCLUDE_KEYWORDS)
+    if not (has_intern or batch_target): 
+        return False
+
 
     full_text = text
     has_intern = any(k in full_text for k in INTERNSHIP_KEYWORDS)

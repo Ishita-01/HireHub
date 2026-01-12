@@ -6,7 +6,7 @@ class JobSpyScraper(BaseScraper):
     def fetch_jobs(self) -> list[ScrappedJob]:
         jobs = scrape_jobs(
             site_name=["indeed","linkedin","glassdoor","naukri"],
-            search_term="software",
+            search_term="software engineer intern 2026 2027",
             location="india",
             country_at_box='india',
             results_wanted=30,

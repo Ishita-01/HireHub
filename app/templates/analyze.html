@@ -1,27 +1,46 @@
+<!-- prettier-ignore -->
+
 {% extends "layout/base.html" %}
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h3 class="card-title mb-4">AI Resume Matcher</h3>
-                
-                <div class="alert alert-info small">
-                    <strong>Current Resume:</strong> {{ user.resume.split('/')[-1] if user.resume else 'None' }}
-                    {% if not user.resume %}
-                        <br><a href="/profile" class="alert-link">Please upload a resume in your profile first.</a>
-                    {% endif %}
+    <div class="col-md-10">
+        <div class="card shadow-lg" style="border-radius: 20px;">
+            <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px 20px 0 0;">
+                <h3 class="mb-0 fw-bold">
+                    <i class="fas fa-robot me-2"></i>AI Resume Matcher
+                </h3>
+                <p class="mb-0 mt-2 opacity-75">Get instant insights on how well your resume matches job descriptions</p>
+            </div>
+            
+            <div class="card-body p-5">
+                <div class="alert d-flex align-items-center mb-4" style="background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%); border-left: 4px solid #3b82f6; border-radius: 12px;">
+                    <i class="fas fa-file-alt fs-3 me-3" style="color: #3b82f6;"></i>
+                    <div>
+                        <strong style="color: #1e40af;">Current Resume:</strong>
+                        <span class="ms-2">{{ user.resume.split('/')[-1] if user.resume else 'None' }}</span>
+                        {% if not user.resume %}
+                            <br><a href="/profile" class="alert-link fw-semibold" style="color: #1e40af;">
+                                <i class="fas fa-arrow-right me-1"></i>Please upload a resume in your profile first.
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <form action="/analyze-resume" method="post">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Job Description</label>
-                        <textarea name="job_description" class="form-control" rows="8" 
-                                  placeholder="Paste the full job description here..." required>{{ jd if jd else '' }}</textarea>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold fs-5">
+                            <i class="fas fa-briefcase me-2" style="color: #667eea;"></i>Job Description
+                        </label>
+                        <textarea name="job_description" class="form-control" rows="10" 
+                                  placeholder="Paste the full job description here including requirements, qualifications, and responsibilities..." 
+                                  required style="font-size: 0.95rem;">{{ jd if jd else '' }}</textarea>
+                        <div class="form-text">
+                            <i class="fas fa-lightbulb me-1"></i>Include all details for best analysis results
+                        </div>
                     </div>
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary" {% if not user.resume %}disabled{% endif %}>
-                            Analyze Match Score
+                        <button type="submit" class="btn btn-primary btn-lg" {% if not user.resume %}disabled{% endif %}>
+                            <i class="fas fa-chart-line me-2"></i>Analyze Match Score
                         </button>
                     </div>
                 </form>
@@ -29,54 +48,86 @@
                 {% if analysis %}
                 <hr class="my-5">
                 <div class="results-section">
-                    <div class="text-center mb-4">
-                        <h4 class="text-muted">Analysis Result</h4>
-                        <div class="display-3 fw-bold text-success">{{ analysis.overall_score }}%</div>
-                        <p class="text-muted">Match with Job Description</p>
+                    <div class="text-center mb-5">
+                        <h4 class="text-muted mb-3">
+                            <i class="fas fa-poll me-2"></i>Analysis Result
+                        </h4>
+                        <div class="position-relative d-inline-block">
+                            <div class="display-1 fw-bold" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                {{ analysis.overall_score }}%
+                            </div>
+                            <div class="progress mt-3" style="height: 10px; border-radius: 10px;">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ analysis.overall_score }}%; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);" 
+                                     aria-valuenow="{{ analysis.overall_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                        <p class="text-muted mt-3 fs-5">Match with Job Description</p>
                     </div>
                 
                     <div class="row g-4 mt-3">
                         <div class="col-md-6">
-                            <h6 class="fw-bold text-danger mb-3">Missing Skills/Keywords</h6>
-                            <div>
-                                {% for skill in analysis.missing_skills %}
-                                    <span class="badge border border-danger text-danger bg-light me-1 mb-2 d-inline-block text-wrap" style="max-width:100%;">
-                                        {{ skill }}
-                                    </span>
-                                {% else %}
-                                    <span class="text-muted small">None identified.</span>
-                                {% endfor %}
+                            <div class="card h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #fff 0%, #fee2e2 100%); border-radius: 16px;">
+                                <div class="card-body p-4">
+                                    <h6 class="fw-bold mb-4" style="color: #dc2626;">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>Missing Skills/Keywords
+                                    </h6>
+                                    <div>
+                                        {% for skill in analysis.missing_skills %}
+                                            <span class="badge border text-danger bg-light me-2 mb-2 d-inline-block text-wrap" style="max-width:100%; border-color: #dc2626 !important; border-radius: 20px; padding: 0.5rem 1rem;">
+                                                <i class="fas fa-times-circle me-1"></i>{{ skill }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">
+                                                <i class="fas fa-check-circle me-1"></i>None identified - Great job!
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     
                         <div class="col-md-6">
-                            <h6 class="fw-bold text-primary mb-3">Recommendations</h6>
-                            <ul class="list-unstyled pe-2">
-                                {% for rec in analysis.recommendations %}
-                                    <li class="small mb-3 text-muted" style="line-height:1.5;">
-                                        📍 {{ rec }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                    <div class ="row g-4 mt-3">
-                        <div class="col-md-6">
-                            <h6 class="fw-bold mb-3">Ats keywords to add</h6>
-                            <div>
-                                {% for keyword in analysis.ats_keywords_to_add %}
-                                    <span class="badge border border-danger text-danger bg-light me-1 mb-2 d-inline-block text-wrap" style="max-width:100%;">
-                                        {{ keyword }}
-                                    </span>
-                                {% else %}
-                                    <span class="text-muted small">None identified.</span>
-                                {% endfor %}
+                            <div class="card h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #fff 0%, #dbeafe 100%); border-radius: 16px;">
+                                <div class="card-body p-4">
+                                    <h6 class="fw-bold mb-4" style="color: #2563eb;">
+                                        <i class="fas fa-lightbulb me-2"></i>Recommendations
+                                    </h6>
+                                    <ul class="list-unstyled">
+                                        {% for rec in analysis.recommendations %}
+                                            <li class="mb-3 p-3 rounded" style="background: rgba(255,255,255,0.7); line-height:1.6;">
+                                                <i class="fas fa-arrow-right me-2" style="color: #2563eb;"></i>{{ rec }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                        
+                    </div>
+                    
+                    <div class="row g-4 mt-3">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #fff 0%, #fef3c7 100%); border-radius: 16px;">
+                                <div class="card-body p-4">
+                                    <h6 class="fw-bold mb-4" style="color: #d97706;">
+                                        <i class="fas fa-tags me-2"></i>ATS Keywords to Add
+                                    </h6>
+                                    <div>
+                                        {% for keyword in analysis.ats_keywords_to_add %}
+                                            <span class="badge border bg-light me-2 mb-2 d-inline-block text-wrap" style="max-width:100%; border-color: #d97706 !important; color: #d97706; border-radius: 20px; padding: 0.5rem 1rem;">
+                                                <i class="fas fa-plus-circle me-1"></i>{{ keyword }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">
+                                                <i class="fas fa-check-circle me-1"></i>None identified
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
                 {% endif %}
             </div>
         </div>

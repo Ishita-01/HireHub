@@ -1,61 +1,111 @@
 {% extends "layout/base.html" %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>My Job Applications</h1>
-    <span class="badge bg-primary fs-5">{{ applications|length }} Total</span>
-</div>
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0 fw-bold" style="color: #2d3748;">
+            <i class="fas fa-clipboard-list me-3" style="color: #667eea;"></i>My Job Applications
+        </h1>
+        <span class="badge fs-4 px-4 py-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 30px;">
+            <i class="fas fa-chart-bar me-2"></i>{{ applications|length }} Total
+        </span>
+    </div>
 
-<div class="table-responsive">
-    <table class="table table-hover align-middle bg-white shadow-sm rounded">
-        <thead class="table-dark">
-            <tr>
-                <th>Company</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Updation Date</th>
-                <th>Notes</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for app in applications %}
-            <tr>
-                <td><strong>{{ app.company }}</strong></td>
-                <td>{{ app.role_title }}</td>
-                <td>
-                    <form action="/update-status" method="post">
-                        <input type="hidden" name="app_id" value="{{ app.id }}">
-                        <select name="new_status" class="form-select form-select-sm" onchange="this.form.submit()">
-                            <option value="planned" {% if app.status == 'planned' %}selected{% endif %}>planned</option>
-                            <option value="applied" {% if app.status == 'applied' %}selected{% endif %}>applied</option>
-                            <option value="oa" {% if app.status == 'oa' %}selected{% endif %}>oa</option>
-                            <option value="interview" {% if app.status == 'interview' %}selected{% endif %}>interview</option>
-                            <option value="offer" {% if app.status == 'offer' %}selected{% endif %}>offer</option>
-                            <option value="rejected" {% if app.status == 'rejected' %}selected{% endif %}>rejected</option>
-                            <option value="ghosted" {% if app.status == 'ghosted' %}selected{% endif %}>ghosted</option>
-                        </select>
-                    </form>
-                </td>
-                <td>{{ app.applied_date.strftime('%Y-%m-%d') if app.applied_date else 'N/A' }}</td>
-                <td>
-                    <form action="/update-notes" method="post" class="input-group input-group-sm">
-                        <input type="hidden" name="app_id" value="{{ app.id }}">
-                        <input type="text" name="notes" class="form-control" value="{{ app.notes or '' }}" placeholder="Add notes...">
-                        <button type="submit" class="btn btn-outline-secondary">Save</button>
-                    </form>
-                </td>
-                <td>
-                    <div class="btn-group">
-                        <a href="{{ app.apply_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Link</a>
-                        <form action="/delete-application" method="post" onsubmit="return confirm('Delete this application?');">
-                            <input type="hidden" name="app_id" value="{{ app.id }}">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <tr>
+                        <th class="py-3 px-4">
+                            <i class="fas fa-building me-2"></i>Company
+                        </th>
+                        <th class="py-3">
+                            <i class="fas fa-briefcase me-2"></i>Role
+                        </th>
+                        <th class="py-3">
+                            <i class="fas fa-tasks me-2"></i>Status
+                        </th>
+                        <th class="py-3">
+                            <i class="fas fa-calendar me-2"></i>Updation Date
+                        </th>
+                        <th class="py-3">
+                            <i class="fas fa-sticky-note me-2"></i>Notes
+                        </th>
+                        <th class="py-3">
+                            <i class="fas fa-cog me-2"></i>Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody style="background: white;">
+                    {% for app in applications %}
+                    <tr style="transition: all 0.3s ease;">
+                        <td class="px-4">
+                            <strong style="color: #2d3748;">
+                                <i class="fas fa-building me-2" style="color: #667eea;"></i>{{ app.company }}
+                            </strong>
+                        </td>
+                        <td>{{ app.role_title }}</td>
+                        <td>
+                            <form action="/update-status" method="post">
+                                <input type="hidden" name="app_id" value="{{ app.id }}">
+                                <select name="new_status" class="form-select form-select-sm" onchange="this.form.submit()" 
+                                        style="border-radius: 10px; border: 2px solid #e2e8f0; font-weight: 600;">
+                                    <option value="planned" {% if app.status == 'planned' %}selected{% endif %}>📋 Planned</option>
+                                    <option value="applied" {% if app.status == 'applied' %}selected{% endif %}>📤 Applied</option>
+                                    <option value="oa" {% if app.status == 'oa' %}selected{% endif %}>💻 OA</option>
+                                    <option value="interview" {% if app.status == 'interview' %}selected{% endif %}>🎤 Interview</option>
+                                    <option value="offer" {% if app.status == 'offer' %}selected{% endif %}>🎉 Offer</option>
+                                    <option value="rejected" {% if app.status == 'rejected' %}selected{% endif %}>❌ Rejected</option>
+                                    <option value="ghosted" {% if app.status == 'ghosted' %}selected{% endif %}>👻 Ghosted</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border" style="border-radius: 10px;">
+                                <i class="far fa-calendar me-1"></i>
+                                {{ app.applied_date.strftime('%Y-%m-%d') if app.applied_date else 'N/A' }}
+                            </span>
+                        </td>
+                        <td>
+                            <form action="/update-notes" method="post" class="input-group input-group-sm">
+                                <input type="hidden" name="app_id" value="{{ app.id }}">
+                                <input type="text" name="notes" class="form-control" value="{{ app.notes or '' }}" 
+                                       placeholder="Add notes..." style="border-radius: 10px 0 0 10px;">
+                                <button type="submit" class="btn btn-outline-secondary" style="border-radius: 0 10px 10px 0;">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </form>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ app.apply_url }}" target="_blank" class="btn btn-sm btn-outline-primary" 
+                                   style="border-radius: 10px 0 0 10px;">
+                                    <i class="fas fa-external-link-alt me-1"></i>Link
+                                </a>
+                                <form action="/delete-application" method="post" onsubmit="return confirm('Delete this application?');" 
+                                      style="display: inline;">
+                                    <input type="hidden" name="app_id" value="{{ app.id }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 0 10px 10px 0;">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    {% if not applications %}
+    <div class="text-center mt-5 p-5">
+        <i class="fas fa-inbox fs-1 mb-3" style="color: #cbd5e1;"></i>
+        <h4 class="text-muted">No applications tracked yet</h4>
+        <p class="text-muted">Start tracking your job applications from the Jobs page</p>
+        <a href="/jobs" class="btn btn-primary mt-3">
+            <i class="fas fa-briefcase me-2"></i>Browse Jobs
+        </a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

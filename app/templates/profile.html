@@ -1,38 +1,82 @@
 {% extends "layout/base.html" %}
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow-sm mt-5">
-            <div class="card-body">
-                <h3 class="card-title mb-4">User Profile</h3>
-                <div class="mb-4">
-                    <h5>Account Details</h5>
-                    <p><strong>Username:</strong> {{ user.username }}</p>
-                    <p><strong>Email:</strong> {{ user.email }}</p>
-                </div>
-                <hr>
-                <h5>Manage Resume</h5>
-                <p class="text-muted small">Current File: 
-                    {% if user.resume %}
-                    <a href="/view-resume" target="_blank" class="text-decoration-none">
-                    {{ user.resume.split('/')[-1] }} 📄
-                    </a>
-                    {% else %}
-                        None
-                    {% endif %}
-                </p>
-                
-                <form action="/update-resume" method="post" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label class="form-label">Upload New Resume (PDF)</label>
-                        <input type="file" name="resume" class="form-control" accept=".pdf" required>
+    <div class="col-md-7">
+        <div class="card shadow-lg mt-5" style="border-radius: 20px;">
+            <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px 20px 0 0;">
+                <h3 class="mb-0 fw-bold">
+                    <i class="fas fa-user-circle me-2"></i>User Profile
+                </h3>
+            </div>
+            
+            <div class="card-body p-5">
+                <div class="mb-5">
+                    <h5 class="fw-bold mb-4" style="color: #2d3748;">
+                        <i class="fas fa-info-circle me-2" style="color: #667eea;"></i>Account Details
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="p-3 rounded" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
+                                <strong style="color: #667eea;">
+                                    <i class="fas fa-user me-2"></i>Username:
+                                </strong>
+                                <span class="ms-2">{{ user.username }}</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 rounded" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
+                                <strong style="color: #667eea;">
+                                    <i class="fas fa-envelope me-2"></i>Email:
+                                </strong>
+                                <span class="ms-2">{{ user.email }}</span>
+                            </div>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Update Resume</button>
-                </form>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div>
+                    <h5 class="fw-bold mb-4" style="color: #2d3748;">
+                        <i class="fas fa-file-pdf me-2" style="color: #11998e;"></i>Manage Resume
+                    </h5>
+                    
+                    <div class="alert alert-info d-flex align-items-center mb-4" style="border-left: 4px solid #667eea;">
+                        <i class="fas fa-file-alt fs-3 me-3" style="color: #667eea;"></i>
+                        <div>
+                            <strong>Current File:</strong>
+                            {% if user.resume %}
+                                <a href="/view-resume" target="_blank" class="text-decoration-none ms-2 fw-semibold" style="color: #667eea;">
+                                    <i class="fas fa-external-link-alt me-1"></i>{{ user.resume.split('/')[-1] }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted ms-2">No resume uploaded</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <form action="/update-resume" method="post" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-upload me-2"></i>Upload New Resume (PDF)
+                            </label>
+                            <input type="file" name="resume" class="form-control" accept=".pdf" required>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>Maximum file size: 10MB
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-cloud-upload-alt me-2"></i>Update Resume
+                        </button>
+                    </form>
 
-                {% if request.query_params.get('success') == 'updated' %}
-                <div class="alert alert-success mt-3">Resume updated successfully!</div>
-                {% endif %}
+                    {% if request.query_params.get('success') == 'updated' %}
+                    <div class="alert alert-success mt-4 d-flex align-items-center">
+                        <i class="fas fa-check-circle fs-4 me-3"></i>
+                        <span>Resume updated successfully!</span>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

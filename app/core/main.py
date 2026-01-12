@@ -170,11 +170,6 @@ async def handle_registration(
         
     return RedirectResponse(url="/login?success=registered", status_code=303)
 
-@app.get("/forgot-password", response_class=HTMLResponse)
-async def forgot_password_page(request: Request):
-    """Route for password recovery."""
-    # Create forgot_password.html with an email input
-    return templates.TemplateResponse("forgot_password.html", {"request": request})
 
 @app.get("/logout")
 async def logout(request: Request):

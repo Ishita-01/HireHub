@@ -1,154 +1,217 @@
 {% extends "layout/base.html" %}
 {% block content %}
-<h1 class="mb-4">Available Jobs</h1>
+<div class="mb-5">
+    <h1 class="mb-4 fw-bold" style="color: #2d3748;">
+        <i class="fas fa-briefcase me-3" style="color: #667eea;"></i>Available Jobs
+    </h1>
 
-
-
-
-{% if user.role.value == 'admin' %}
-<div class="card mb-4">
-    <div class="card-body">
-        <h5 class="card-title">Add Job Manually</h5>
-        <form action="/add-jobs-manually" method="post" class="row g-3">
-            <div class="col-md-3">
-                <input type="text" name="company" class="form-control" placeholder="Company" required>
-            </div>
-            <div class="col-md-3">
-                <input type="text" name="title" class="form-control" placeholder="Title" required>
-            </div>
-            <div class="col-md-3">
-                <input type="text" name="location" class="form-control" placeholder="Location">
-            </div>
-            <div class="col-md-3">
-                <input type="text" name="employment_type" class="form-control" placeholder="Employment Type" required>
-            </div>
-            <div class="col-md-3">
-                <input type="date" name="deadline" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <input type="url" name="apply_link" class="form-control" placeholder="Apply URL" required>
-            </div>
-            <div class="col-md-3 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">Add</button>
-            </div>
-        </form>
-    </div>
-</div>
-{% endif %}
-<div class="btn-group" role="group">
-        <a href="/jobs" class="btn {% if not current_source %}btn-primary{% else %}btn-outline-primary{% endif %}">
-            All
-        </a>
-        <a href="/jobs?source=onCampus" class="btn {% if current_source == 'onCampus' %}btn-success{% else %}btn-outline-success{% endif %}">
-            OnCampus
-        </a>
-        <a href="/jobs?source=web" class="btn {% if current_source == 'web' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
-            Web Jobs
-        </a>
-</div>
-
-<table class="table table-striped bg-white shadow-sm">
-  <thead>
-    <tr>
-      <th>Company</th>
-      <th>Title</th>
-      <th>Location</th>
-      <th>Employment Type</th>
-      <th>Deadline</th>
-      <th>Source</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for job in jobs %}
-    <tr class="{% if job.source == 'onCampus' %}table-success{% endif %}">
-    
-      <td>{{ job.company }}</td>
-      <td>{{ job.title }}</td>
-      <td>{{ job.location }}</td>
-      <td>{{ job.employment_type }}</td>
-      <td>
-          {% if job.deadline %}
-          {{ job.deadline.strftime("%Y-%m-%d") }}
-          {% else %}
-          N/A
-          {% endif %}
-      </td>
-      <td>
-        {% if job.source == 'onCampus' %}
-            <span class="badge bg-success">OnCampus</span>
-        {% else %}
-            {{ job.source }}
-        {% endif %}
-     </td>
-      <td>
-        <div class="d-flex gap-2">
-            <a href="{{ job.apply_link }}" target="_blank" class="btn btn-sm btn-outline-primary">Apply</a>
-            
-            {% if user.role.value == 'admin' %}
-            <button type="button" class="btn btn-sm btn-outline-secondary" 
-                    data-bs-toggle="modal" 
-                    data-bs-target="#editModal{{ job.id }}">
-                Edit
-            </button>
-            {% endif %}
-
-            
-            <form action="/track-job" method="post" class="m-0">
-                <input type="hidden" name="job_id" value="{{ job.id }}">
-                <button type="submit" class="btn btn-sm btn-success">Track</button>
-            </form>
-            
-        </div>
-
-        {% if user.role.value == 'admin' %}
-        <div class="modal fade" id="editModal{{ job.id }}" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="/edit-job" method="post">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Edit Job Listing</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="hidden" name="job_id" value="{{ job.id }}">
-                            <div class="mb-3">
-                                <label class="form-label">Company</label>
-                                <input type="text" name="company" class="form-control" value="{{ job.company }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Title</label>
-                                <input type="text" name="title" class="form-control" value="{{ job.title }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Location</label>
-                                <input type="text" name="location" class="form-control" value="{{ job.location }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Apply Link</label>
-                                <input type="url" name="apply_link" class="form-control" value="{{ job.apply_link }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Employment Type</label>
-                                <input type="text" name="employment_type" class="form-control" value="{{ job.employment_type }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Deadline</label>
-                                <input type="date" name="deadline" class="form-control" value="{{ job.deadline.strftime('%Y-%m-%d') if job.deadline else '' }}">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                        </div>
-                    </form>
+    {% if user.role.value == 'admin' %}
+    <div class="card mb-4 shadow-sm border-0" style="border-radius: 16px; ">
+        <div class="card-body p-4">
+            <h5 class="card-title fw-bold mb-4" >
+                <i class="fas fa-plus-circle me-2"></i>Add Job Manually
+            </h5>
+            <form action="/add-jobs-manually" method="post" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Company</label>
+                    <input type="text" name="company" class="form-control" placeholder="Company Name" required>
                 </div>
-            </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Title</label>
+                    <input type="text" name="title" class="form-control" placeholder="Job Title" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Location</label>
+                    <input type="text" name="location" class="form-control" placeholder="Location">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Employment Type</label>
+                    <input type="text" name="employment_type" class="form-control" placeholder="Full-time/Intern" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">Deadline</label>
+                    <input type="date" name="deadline" class="form-control" placeholder="Deadline">
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label small fw-semibold">Apply URL</label>
+                    <input type="url" name="apply_link" class="form-control" placeholder="Apply Link" required>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-plus me-2"></i>Add Job
+                    </button>
+                </div>
+            </form>
         </div>
-        {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </div>
+    {% endif %}
+
+    <div class="btn-group mb-4 shadow-sm" role="group" style="border-radius: 12px; overflow: hidden;">
+        <a href="/jobs" class="btn btn-lg {% if not current_source %}btn-primary{% else %}btn-outline-primary{% endif %}" 
+           style="border-radius: 12px 0 0 12px;">
+            <i class="fas fa-list me-2"></i>All Jobs
+        </a>
+        <a href="/jobs?source=onCampus" class="btn btn-lg {% if current_source == 'onCampus' %}btn-success{% else %}btn-outline-success{% endif %}">
+            <i class="fas fa-university me-2"></i>OnCampus
+        </a>
+        <a href="/jobs?source=web" class="btn btn-lg {% if current_source == 'web' %}btn-secondary{% else %}btn-outline-secondary{% endif %}" 
+           style="border-radius: 0 12px 12px 0;">
+            <i class="fas fa-globe me-2"></i>Web Jobs
+        </a>
+    </div>
+
+    <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <tr>
+                        <th class="py-3 px-4">
+                            <i class="fas fa-building me-2"></i>Company
+                        </th>
+                        <th class="py-3">
+                            <i class="fas fa-briefcase me-2"></i>Title
+                        </th>
+                        <th class="py-3">
+                            <i class="fas fa-map-marker-alt me-2"></i>Location
+                        </th>
+                        <th class="py-3">
+                            <i class="fas fa-user-tie me-2"></i>Employment Type
+                        </th>
+                        <th class="py-3">
+                            <i class="fas fa-calendar-times me-2"></i>Deadline
+                        </th>
+                        <th class="py-3">
+                            <i class="fas fa-tag me-2"></i>Source
+                        </th>
+                        <th class="py-3">
+                            <i class="fas fa-cog me-2"></i>Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody style="background: white;">
+                    {% for job in jobs %}
+                    <tr class="{% if job.source == 'onCampus' %}table-success{% endif %}" style="transition: all 0.3s ease;">
+                        <td class="px-4">
+                            <strong style="color: #2d3748;">
+                                <i class="fas fa-building me-2" style="color: #667eea;"></i>{{ job.company }}
+                            </strong>
+                        </td>
+                        <td>{{ job.title }}</td>
+                        <td>
+                            <i class="fas fa-map-marker-alt me-1" style="color: #ef4444;"></i>{{ job.location }}
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border" style="border-radius: 10px;">
+                                {{ job.employment_type }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if job.deadline %}
+                                <span class="badge bg-light text-dark border" style="border-radius: 10px;">
+                                    <i class="far fa-calendar me-1"></i>{{ job.deadline.strftime("%Y-%m-%d") }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if job.source == 'onCampus' %}
+                                <span class="badge px-3 py-2" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 10px;">
+                                    <i class="fas fa-university me-1"></i>OnCampus
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary px-3 py-2" style="border-radius: 10px;">
+                                    {{ job.source }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{{ job.apply_link }}" target="_blank" class="btn btn-sm btn-outline-primary" 
+                                   style="border-radius: 10px;">
+                                    <i class="fas fa-external-link-alt me-1"></i>Apply
+                                </a>
+                                
+                                {% if user.role.value == 'admin' %}
+                                <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editModal{{ job.id }}"
+                                        style="border-radius: 10px;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                {% endif %}
+
+                                <form action="/track-job" method="post" class="m-0">
+                                    <input type="hidden" name="job_id" value="{{ job.id }}">
+                                    <button type="submit" class="btn btn-sm btn-success" style="border-radius: 10px;">
+                                        <i class="fas fa-bookmark me-1"></i>Track
+                                    </button>
+                                </form>
+                            </div>
+
+                            {% if user.role.value == 'admin' %}
+                            <div class="modal fade" id="editModal{{ job.id }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content" style="border-radius: 16px; border: none;">
+                                        <form action="/edit-job" method="post">
+                                            <div class="modal-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px 16px 0 0;">
+                                                <h5 class="modal-title">
+                                                    <i class="fas fa-edit me-2"></i>Edit Job Listing
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body p-4">
+                                                <input type="hidden" name="job_id" value="{{ job.id }}">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold">Company</label>
+                                                    <input type="text" name="company" class="form-control" value="{{ job.company }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold">Title</label>
+                                                    <input type="text" name="title" class="form-control" value="{{ job.title }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold">Location</label>
+                                                    <input type="text" name="location" class="form-control" value="{{ job.location }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold">Apply Link</label>
+                                                    <input type="url" name="apply_link" class="form-control" value="{{ job.apply_link }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold">Employment Type</label>
+                                                    <input type="text" name="employment_type" class="form-control" value="{{ job.employment_type }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold">Deadline</label>
+                                                    <input type="date" name="deadline" class="form-control" value="{{ job.deadline.strftime('%Y-%m-%d') if job.deadline else '' }}">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="fas fa-save me-2"></i>Save Changes
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if not jobs %}
+    <div class="text-center mt-5 p-5">
+        <i class="fas fa-inbox fs-1 mb-3" style="color: #cbd5e1;"></i>
+        <h4 class="text-muted">No jobs available</h4>
+        <p class="text-muted">Check back later for new opportunities</p>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}
