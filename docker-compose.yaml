@@ -1,0 +1,19 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist the SQLite database
+      - ./test.db:/app/test.db
+      # Persist uploaded resumes
+      - ./uploads:/app/uploads
+      # Mount credentials if you want to provide them at runtime
+      - ./token.json:/app/token.json
+      - ./app/core/credentials.json:/app/app/core/credentials.json
+    env_file:
+      - .env
+    restart: always
+
+volumes:
+  uploads:

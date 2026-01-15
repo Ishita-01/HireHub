@@ -106,7 +106,7 @@ def analyze_resume(resume_path: str, job_description: str):
     try:
 
         print("inside analyze resume function (try)")
-        resume_file = client.files.upload(file=resume_path)
+        resume_file = client.files.upload(path=resume_path)
         print(f"Uploaded resume file with name: {resume_file.name}")
 
 
